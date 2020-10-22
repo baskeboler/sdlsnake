@@ -5,30 +5,32 @@
 #include <string>
 #include <vector>
 
-#include <SDL.h>
+//#include <GL/glew.h>
+//#include <SDL.h>
+//#include <SDL_opengl.h>
 #include <entt/entt.hpp>
 
 #include "sys/playercontrolsystem.h"
 #include "sys/rendersystem.h"
 
+class EventSystem;
 class Game : public std::enable_shared_from_this<Game> {
 
-  SDL_Window *_window;
-  SDL_Renderer *_renderer;
-  bool _is_running;
+  //  SDL_Window *_window;
+  //  SDL_Renderer *_renderer;
+  //  SDL_GLContext _context;
+  bool isRunning;
   std::string _title;
-  Uint32 _tick_count;
+  uint32_t _tick_count;
 
   entt::registry _registry;
 
   int _windowWidth;
   int _windowHeight;
 
-  std::vector<Uint8> kbState;
-
-  std::unique_ptr<RenderSystem> renderSys;
-  std::unique_ptr<PlayerControlSystem> playerControlSys;
-
+  std::unique_ptr<System> renderSys;
+  std::unique_ptr<System> playerControlSys;
+  std::unique_ptr<EventSystem> eventSystem;
   entt::entity playerEntity;
 
 public:
@@ -42,8 +44,9 @@ public:
    * @param ww window width
    * @param wh window height
    */
-  Game(SDL_Window *w = nullptr, SDL_Renderer *renderer = nullptr,
-       bool r = false, const std::string &t = "", int ww = 1024, int wh = 768);
+  Game(
+      //          SDL_Window *w = nullptr, SDL_Renderer *renderer = nullptr,
+      bool r = false, const std::string &t = "", int ww = 1024, int wh = 768);
   ~Game();
   bool initialize();
 
@@ -52,11 +55,32 @@ public:
   void generateOutput();
   void shutdown();
 
-  SDL_Renderer *renderer() const;
-  SDL_Window *window() const;
+  //  SDL_Renderer *renderer() const;
+  //  SDL_Window *window() const;
   entt::registry &registry();
-  std::vector<Uint8> getKbState() const;
+
   entt::entity getPlayerEntity() const;
+  bool getIsRunning() const;
+  void setIsRunning(bool value);
+
+  int getWindowWidth() const;
+
+  int getWindowHeight() const;
+
+  void signalClose();
+
+private:
+  entt::entity createRandomEnemy();
+  entt::entity createPlayer();
+
+  void on_exit_signal() { isRunning = false; }
+  void on_mousewheel_signal(int i);
+  entt::sigh<void()> exit_signal;
+  entt::sink<void()> exit_signal_sink;
+
+  friend class RaylibRenderSystem;
 };
+
+#include "sys/eventsystem.h"
 
 #endif // GAME_H

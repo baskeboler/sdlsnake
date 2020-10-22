@@ -2,6 +2,7 @@
 #define SPRITE_H
 
 #include <glm/glm.hpp>
+namespace snake {
 
 enum SpriteType {
   TEXTURE,
@@ -16,5 +17,6 @@ struct Sprite {
   int height;
   glm::u8vec4 color;
 };
+} // namespace snake
 
 #endif // SPRITE_H

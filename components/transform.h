@@ -3,6 +3,8 @@
 
 #include <glm/glm.hpp>
 
+namespace snake {
+
 struct Transform {
 
   glm::fvec2 translate = {0, 0};
@@ -13,5 +15,6 @@ struct Transform {
       : translate{translateX, translateY}, rotate{rotate}, scale{scaleX,
                                                                  scaleY} {}
 };
+} // namespace snake
 
 #endif // POSITION_H

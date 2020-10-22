@@ -1,26 +1,41 @@
+#include "playercontrolsystem.h"
+
 #include <utility>
 
-#include <SDL.h>
-
-#include "playercontrolsystem.h"
+#include <boost/geometry.hpp>
+#include <raylib.h>
 
 #include "../components/all.h"
 #include "../game.h"
 
-PlayerControlSystem::PlayerControlSystem(std::shared_ptr<Game> g) : _game{g} {}
+namespace geo = boost::geometry;
+PlayerControlSystem::PlayerControlSystem(std::shared_ptr<Game> g) : System{g} {}
 
-void PlayerControlSystem::update() {
-  auto &reg = _game->registry();
-  auto kb = SDL_GetKeyboardState(nullptr); //_game->getKbState();
-  auto player = _game->getPlayerEntity();
-  auto &transform = reg.get<Transform>(player);
-  if (kb[SDL_SCANCODE_D]) {
-    transform.translate.x++;
-    reg.replace<Transform>(player, transform);
+void PlayerControlSystem::update(entt::registry &reg) {
+  auto player = game()->getPlayerEntity();
+  auto &sprite = reg.get<snake::Sprite>(player);
+  sprite.color.r = (sprite.color.r + 1) % 256;
+  auto &transform = reg.get<snake::Transform>(player);
+  if (IsKeyDown(KEY_D)) {
+    transform.translate.x += 5;
   }
 
-  if (kb[SDL_SCANCODE_A]) {
-    transform.translate.x--;
-    reg.replace<Transform>(player, transform);
+  if (IsKeyDown(KEY_A)) {
+    transform.translate.x -= 5;
+  }
+  if (IsKeyDown(KEY_W)) {
+    transform.translate.y -= 5;
+  }
+  if (IsKeyDown(KEY_S)) {
+    transform.translate.y += 5;
+  }
+  if (IsKeyPressed(KEY_ESCAPE) || WindowShouldClose()) {
+    game()->signalClose();
+  }
+
+  auto enemies = reg.view<snake::Enemy, snake::Transform>();
+  for (auto &e : enemies) {
+    auto &t = reg.get<snake::Transform>(e);
+    t.rotate++;
   }
 }
